@@ -13,6 +13,8 @@ services:
     command: server /data --console-address ":9001"
   mongodb:
     image: mongodb/mongodb-community-server:8.0-ubi8
+    ports:
+      - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}

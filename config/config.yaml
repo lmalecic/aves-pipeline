@@ -1,0 +1,5 @@
+taxonomy:
+  source_url: "https://aves.regoch.net/aves.json"
+
+mongodb:
+  database: "aves"

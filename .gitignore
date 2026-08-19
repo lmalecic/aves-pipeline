@@ -3,3 +3,6 @@
 .envrc
 minio/data/
 mongodb/data/
+src/aves_pipeline.egg-info/
+.snakemake/
+artifacts/state/
