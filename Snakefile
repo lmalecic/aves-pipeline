@@ -12,3 +12,14 @@ rule ingest_taxonomy:
         database=config["mongodb"]["database"],
     script:
         "scripts/ingest_taxonomy.py"
+
+rule ingest_audio:
+    input:
+        taxonomy="artifacts/state/taxonomy.done"
+    output:
+        touch("artifacts/state/audio-ingestion.done")
+    params:
+        database=config["mongodb"]["database"],
+        sounds_per_taxon=config["audio"]["sounds_per_taxon"],
+    script:
+        "scripts/ingest_audio.py"

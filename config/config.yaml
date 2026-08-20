@@ -3,3 +3,6 @@ taxonomy:
 
 mongodb:
   database: "aves"
+
+audio:
+  sounds_per_taxon: 1

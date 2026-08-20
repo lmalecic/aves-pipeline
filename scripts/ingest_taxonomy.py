@@ -6,16 +6,9 @@ from typing import Any, TypedDict
 import requests
 from dotenv import load_dotenv
 from pymongo import MongoClient
-
+from src.types import MongoConfig
 
 TAXA_COLLECTION = "taxa"
-
-
-class MongoConfig(TypedDict):
-    host: str
-    username: str
-    password: str
-    authSource: str
 
 def fetchTaxa(sourceUrl: str) -> list[dict[str, Any]]:
     response = requests.get(
@@ -63,7 +56,7 @@ def ingestTaxa(*, databaseName: str, sourceUrl: str, mongodb: MongoConfig) -> No
         password = mongodb["password"],
         authSource = mongodb["authSource"],
     ) as client:
-        client.admin.command("ping")
+        _ = client.admin.command("ping")
 
         database = client[databaseName]
         collection = database[TAXA_COLLECTION]

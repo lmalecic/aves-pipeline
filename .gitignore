@@ -6,3 +6,8 @@ mongodb/data/
 src/aves_pipeline.egg-info/
 .snakemake/
 artifacts/state/
+
+data/audio/*
+!data/audo/.gitkeep
+graphify-out/
+src/__pycache__/
