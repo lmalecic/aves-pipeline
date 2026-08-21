@@ -1,8 +1,20 @@
 taxonomy:
   source_url: "https://aves.regoch.net/aves.json"
+  output_file: "data/aves.json"
 
 mongodb:
   database: "aves"
+  taxa_collection: "taxa"
+  audio_collection: "audio_files"
+
+minio:
+  audio_bucket: "bird-audio"
 
 audio:
-  sounds_per_taxon: 1
+  taxa_sample_size: 3
+  sounds_per_taxon: 3
+  candidates_file: "data/sound_candidates.json"
+  directory: "data/audio"
+  manifest_file: "data/audio/manifest.jsonl"
+  uploaded_manifest_file: "data/audio/uploaded_manifest.jsonl"
+  classifier_url: "https://aves.regoch.net/api/classify"

@@ -1,25 +1,21 @@
-import os
 import datetime
+import json
+import os
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any
 
-import requests
 from dotenv import load_dotenv
 from pymongo import MongoClient
+
 from src.types import MongoConfig
 
-TAXA_COLLECTION = "taxa"
+DATABASE = snakemake.config["mongodb"]["database"]
+TAXA_COLLECTION = snakemake.config["mongodb"]["taxa_collection"]
 
-def fetchTaxa(sourceUrl: str) -> list[dict[str, Any]]:
-    response = requests.get(
-        sourceUrl,
-        headers = { "User-Agent": "aves-pipeline" },
-        timeout = (10, 60),
-    )
 
-    response.raise_for_status()
-
-    data = response.json()
+def fetchTaxa(sourceFile: str) -> list[dict[str, Any]]:
+    with open(sourceFile, "r") as f:
+        data = json.load(f)
 
     if not isinstance(data, list):
         raise TypeError("Expected the taxonomy response to contain a JSON list")
@@ -49,7 +45,7 @@ def fetchTaxa(sourceUrl: str) -> list[dict[str, Any]]:
 
     return data
 
-def ingestTaxa(*, databaseName: str, sourceUrl: str, mongodb: MongoConfig) -> None:
+def ingestTaxa(*, sourceFile: str, mongodb: MongoConfig) -> None:
     with MongoClient(
         host = mongodb["host"],
         username = mongodb["username"],
@@ -58,14 +54,14 @@ def ingestTaxa(*, databaseName: str, sourceUrl: str, mongodb: MongoConfig) -> No
     ) as client:
         _ = client.admin.command("ping")
 
-        database = client[databaseName]
+        database = client[DATABASE]
         collection = database[TAXA_COLLECTION]
 
         if collection.find_one({}, {"_id": 1}) is not None:
             print("Collection already contains data. Skipping ingestion.")
             return
 
-        taxa = fetchTaxa(sourceUrl)
+        taxa = fetchTaxa(sourceFile)
         ingestedAt = datetime.datetime.now(datetime.UTC)
 
         documents = []
@@ -74,7 +70,7 @@ def ingestTaxa(*, databaseName: str, sourceUrl: str, mongodb: MongoConfig) -> No
             document = dict(taxon)
 
             document["_metadata"] = {
-                "source_url": sourceUrl,
+                "source_url": sourceFile,
                 "ingested_at": ingestedAt,
             }
 
@@ -84,7 +80,7 @@ def ingestTaxa(*, databaseName: str, sourceUrl: str, mongodb: MongoConfig) -> No
         collection.create_index("canonicalName", name="idx_taxa_canonical_name")
 
         result = collection.insert_many(documents)
-        print(f"Inserted {len(result.inserted_ids)} taxa into {databaseName}.{TAXA_COLLECTION}")
+        print(f"Inserted {len(result.inserted_ids)} taxa into {DATABASE}.{TAXA_COLLECTION}")
 
 def main() -> None:
     load_dotenv()
@@ -93,12 +89,11 @@ def main() -> None:
     marker_path.parent.mkdir(parents = True, exist_ok = True)
 
     ingestTaxa(
-        databaseName = str(snakemake.params.database),
-        sourceUrl = str(snakemake.params.source_url),
+        sourceFile = str(snakemake.params.source_file),
         mongodb = MongoConfig(
             host = os.getenv("MONGO_HOST", "localhost"),
-            username = os.getenv("MONGO_INITDB_ROOT_USERNAME", "root"),
-            password = os.getenv("MONGO_INITDB_ROOT_PASSWORD", "password"),
+            username = os.environ["MONGO_INITDB_ROOT_USERNAME"],
+            password = os.environ["MONGO_INITDB_ROOT_PASSWORD"],
             authSource = os.getenv("MONGO_AUTH_DATABASE", "admin")
         ),
     )
