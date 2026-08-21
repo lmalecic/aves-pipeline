@@ -89,7 +89,7 @@ def main() -> None:
     marker_path.parent.mkdir(parents = True, exist_ok = True)
 
     ingestTaxa(
-        sourceFile = str(snakemake.params.source_file),
+        sourceFile = str(snakemake.input.source_file),
         mongodb = MongoConfig(
             host = os.getenv("MONGO_HOST", "localhost"),
             username = os.environ["MONGO_INITDB_ROOT_USERNAME"],

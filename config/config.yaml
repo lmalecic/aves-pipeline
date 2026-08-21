@@ -6,9 +6,11 @@ mongodb:
   database: "aves"
   taxa_collection: "taxa"
   audio_collection: "audio_files"
+  classification_collection: "classifications"
 
 minio:
   audio_bucket: "bird-audio"
+  classification_log_prefix: "classification-logs"
 
 audio:
   taxa_sample_size: 3
@@ -17,4 +19,10 @@ audio:
   directory: "data/audio"
   manifest_file: "data/audio/manifest.jsonl"
   uploaded_manifest_file: "data/audio/uploaded_manifest.jsonl"
+  classification_done_file: "data/classification.done"
   classifier_url: "https://aves.regoch.net/api/classify"
+
+report:
+  output_file: "data/reports/bird_statistics.csv"
+  minimum_confidence: 0.5
+  fuzzy_threshold: 70
