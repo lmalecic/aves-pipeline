@@ -18,7 +18,7 @@ snakemake scriptname --cores 1
 ```
 
 ## Configuration
-You can make your own config in ``config/``, see ``config/config.yaml`` for reference.
+You can make your own config in ``config/``, see ``config/config.yaml`` for reference. Then in ``Snakefile`` set ``configfile`` to your config file path.
 
 Or if you'd like to run snakemake with specific config parameters:
 ```
